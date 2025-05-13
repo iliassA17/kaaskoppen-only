@@ -28,7 +28,7 @@
       width: 100%;
       padding: 12px;
       margin-top: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       font-size: 1rem;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -47,6 +47,23 @@
       padding: 12px;
       border-radius: 10px;
       margin-top: 20px;
+    }
+    #suggestions {
+      background: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      border-radius: 0 0 10px 10px;
+    }
+    #suggestions li {
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    #suggestions li:hover {
+      background-color: #e5e7eb;
     }
     #feedbackSection {
       display: none;
@@ -71,6 +88,7 @@
     </select>
     <label for="inputText">Voer tekst in:</label>
     <textarea id="inputText" rows="4" placeholder="Typ hier..."></textarea>
+    <ul id="suggestions" style="list-style:none;padding-left:0;"></ul>
     <button onclick="translateText()">Vertaal</button>
     <div class="output" id="outputText">Vertaling verschijnt hier...</div>
     <div id="feedbackSection">
@@ -81,8 +99,34 @@
   </div>
   <script src="dictionary_300woorden.js"></script>
   <script>
+    const inputField = document.getElementById("inputText");
+    const suggestionsBox = document.getElementById("suggestions");
+
+    inputField.addEventListener("input", function () {
+      const val = inputField.value.trim().toLowerCase();
+      suggestionsBox.innerHTML = "";
+      if (val.length < 2) return;
+
+      const matches = Object.keys(dictionary).filter(word => word.startsWith(val)).slice(0, 5);
+      matches.forEach(word => {
+        const li = document.createElement("li");
+        li.textContent = word;
+        li.onclick = () => {
+          inputField.value = word;
+          suggestionsBox.innerHTML = "";
+        };
+        suggestionsBox.appendChild(li);
+      });
+    });
+
+    document.addEventListener("click", function(e) {
+      if (!suggestionsBox.contains(e.target) && e.target !== inputField) {
+        suggestionsBox.innerHTML = "";
+      }
+    });
+
     function translateText() {
-      const input = document.getElementById("inputText").value.trim().toLowerCase();
+      const input = inputField.value.trim().toLowerCase();
       const direction = document.getElementById("direction").value;
       if (dictionary[input]) {
         document.getElementById("outputText").innerText = dictionary[input];
@@ -94,10 +138,10 @@
       for (let i = 0; i < words.length; i++) {
         const word = words[i];
         if (direction === "darija-nl") {
-          result.push(dictionary[word] || '[' + word + ']');
+          result.push(dictionary[word] || "[" + word + "]");
         } else {
           const entry = Object.entries(dictionary).find(([d, n]) => n.toLowerCase() === word);
-          result.push(entry ? entry[0] : '[' + word + ']');
+          result.push(entry ? entry[0] : "[" + word + "]");
         }
       }
       const output = result.join(" ");
@@ -108,7 +152,7 @@
         : output;
     }
     function reportMissingWord() {
-      const woord = document.getElementById("inputText").value.trim();
+      const woord = inputField.value.trim();
       fetch("https://script.google.com/macros/s/AKfycbxnVKIrM4dYzMANWoCxHH2k_NOWZEyC9gHTvZKT2sxRGGZzUK018hBRRD055KBTDrTUJQ/exec", {
         method: "POST",
         headers: {
