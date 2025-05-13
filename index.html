@@ -76,7 +76,19 @@
     #feedbackSection button:hover {
       background-color: #d97706;
     }
-  </style>
+  
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+      100% { transform: translateX(0); }
+    }
+    .shake {
+      animation: shake 0.4s;
+    }
+    </style>
 </head>
 <body>
   <div class="container">
@@ -126,6 +138,7 @@
     });
 
     function translateText() {
+      const translateBtn = document.querySelector('button');
       const input = inputField.value.trim().toLowerCase();
       const direction = document.getElementById("direction").value;
       if (dictionary[input]) {
@@ -147,7 +160,9 @@
       const output = result.join(" ");
       const allUnknown = result.every(w => w.startsWith("[") && w.endsWith("]"));
       document.getElementById("feedbackSection").style.display = allUnknown ? "block" : "none";
-      document.getElementById("outputText").innerText = allUnknown
+      if (allUnknown) translateBtn.classList.add("shake");
+        setTimeout(() => translateBtn.classList.remove("shake"), 400);
+        document.getElementById("outputText").innerText = allUnknown
         ? "Dit woord of deze zin staat (nog) niet in de woordenlijst."
         : output;
     }
