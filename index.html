@@ -57,6 +57,8 @@
       margin-top: -10px;
       margin-bottom: 20px;
       border-radius: 0 0 10px 10px;
+      list-style: none;
+      padding-left: 0;
     }
     #suggestions li {
       padding: 6px 10px;
@@ -76,7 +78,6 @@
     #feedbackSection button:hover {
       background-color: #d97706;
     }
-  
     @keyframes shake {
       0% { transform: translateX(0); }
       20% { transform: translateX(-5px); }
@@ -88,19 +89,17 @@
     .shake {
       animation: shake 0.4s;
     }
-    </style>
+  </style>
 </head>
 <body>
   <div class="container">
     <h1>Darija ↔ Nederlands</h1>
-    <label for="direction">Vertaalrichting:</label>
     <select id="direction">
       <option value="darija-nl">Darija → Nederlands</option>
       <option value="nl-darija">Nederlands → Darija</option>
     </select>
-    <label for="inputText">Voer tekst in:</label>
     <textarea id="inputText" rows="4" placeholder="Typ hier..."></textarea>
-    <ul id="suggestions" style="list-style:none;padding-left:0;"></ul>
+    <ul id="suggestions"></ul>
     <button onclick="translateText()">Vertaal</button>
     <div class="output" id="outputText">Vertaling verschijnt hier...</div>
     <div id="feedbackSection">
@@ -118,7 +117,6 @@
       const val = inputField.value.trim().toLowerCase();
       suggestionsBox.innerHTML = "";
       if (val.length < 2) return;
-
       const matches = Object.keys(dictionary).filter(word => word.startsWith(val)).slice(0, 5);
       matches.forEach(word => {
         const li = document.createElement("li");
@@ -138,7 +136,7 @@
     });
 
     function translateText() {
-      const translateBtn = document.querySelector('button');
+      const translateBtn = document.querySelector("button");
       const input = inputField.value.trim().toLowerCase();
       const direction = document.getElementById("direction").value;
       if (dictionary[input]) {
@@ -159,13 +157,16 @@
       }
       const output = result.join(" ");
       const allUnknown = result.every(w => w.startsWith("[") && w.endsWith("]"));
-      document.getElementById("feedbackSection").style.display = allUnknown ? "block" : "none";
-      if (allUnknown) translateBtn.classList.add("shake");
+      if (allUnknown) {
+        translateBtn.classList.add("shake");
         setTimeout(() => translateBtn.classList.remove("shake"), 400);
-        document.getElementById("outputText").innerText = allUnknown
+      }
+      document.getElementById("feedbackSection").style.display = allUnknown ? "block" : "none";
+      document.getElementById("outputText").innerText = allUnknown
         ? "Dit woord of deze zin staat (nog) niet in de woordenlijst."
         : output;
     }
+
     function reportMissingWord() {
       const woord = inputField.value.trim();
       fetch("https://script.google.com/macros/s/AKfycbxnVKIrM4dYzMANWoCxHH2k_NOWZEyC9gHTvZKT2sxRGGZzUK018hBRRD055KBTDrTUJQ/exec", {
