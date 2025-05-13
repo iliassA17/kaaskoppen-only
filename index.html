@@ -7,7 +7,7 @@
   <title>Darija ↔ Nederlands Vertaal App</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <style>
-    body {
+    body {{
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
@@ -19,9 +19,8 @@
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
-    }
-
-    .container {
+    }}
+    .container {{
       background-color: rgba(255, 255, 255, 0.92);
       margin-top: 30px;
       padding: 25px;
@@ -29,40 +28,35 @@
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
       width: 90%;
       max-width: 500px;
-    }
-
-    h1 {
+    }}
+    h1 {{
       text-align: center;
       color: #1f2937;
       margin-bottom: 20px;
       font-size: 1.8rem;
-    }
-
+    }}
     select,
     textarea,
-    button {
+    button {{
       width: 100%;
       font-size: 1rem;
       margin: 10px 0;
       padding: 12px;
       border-radius: 10px;
       border: 1px solid #ccc;
-    }
-
-    button {
+    }}
+    button {{
       background-color: #2563eb;
       color: white;
       font-weight: bold;
       cursor: pointer;
       border: none;
       transition: background-color 0.3s ease;
-    }
-
-    button:hover {
+    }}
+    button:hover {{
       background-color: #1d4ed8;
-    }
-
-    .output {
+    }}
+    .output {{
       margin-top: 20px;
       background-color: #f0f4f8;
       padding: 15px;
@@ -70,47 +64,41 @@
       min-height: 40px;
       color: #111827;
       font-size: 1rem;
-    }
-
-    @media (max-width: 480px) {
-      .container {
+    }}
+    @media (max-width: 480px) {{
+      .container {{
         padding: 20px;
-      }
-      h1 {
+      }}
+      h1 {{
         font-size: 1.5rem;
-      }
-      textarea {
+      }}
+      textarea {{
         font-size: 1rem;
-      }
-      button {
+      }}
+      button {{
         font-size: 1rem;
         padding: 14px;
-      }
-    }
+      }}
+    }}
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Darija ↔ Nederlands</h1>
-
     <label for="direction">Vertaalrichting:</label>
     <select id="direction">
       <option value="darija-nl">Darija → Nederlands</option>
       <option value="nl-darija">Nederlands → Darija</option>
     </select>
-
     <label for="inputText">Voer tekst in:</label>
     <textarea id="inputText" rows="4" placeholder="Typ hier..."></textarea>
-
     <button onclick="translateText()">Vertaal</button>
-
-    
     <div class="output" id="outputText">Vertaling verschijnt hier...</div>
     <div id="feedbackSection" style="display: none; margin-top: 10px;">
       <p style="font-size: 0.95rem; color: #444;">
         📢 Help ons verbeteren! Dit woord staat niet in onze woordenlijst.
       </p>
-      <button onclick="alert('Bedankt voor je bijdrage! We zullen dit woord bekijken.')"
+      <button onclick="reportMissingWord()"
         style="width: 100%; background-color: #f59e0b; color: white; border: none;
                padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">
         ❗ Meld dit woord
@@ -119,42 +107,48 @@
         Door woorden te melden help je ons de vertaler verder te ontwikkelen.
       </p>
     </div>
-    
   </div>
-
   <script src="dictionary_300woorden.js"></script>
   <script>
-    function translateText() {
+    function translateText() {{
       const input = document.getElementById("inputText").value.trim().toLowerCase();
       const direction = document.getElementById("direction").value;
-
-      if (dictionary[input]) {
+      if (dictionary[input]) {{
         document.getElementById("outputText").innerText = dictionary[input];
+        document.getElementById("feedbackSection").style.display = "none";
         return;
-      }
-
+      }}
       const words = input.split(" ");
       let result = [];
-
-      words.forEach(word => {
-        if (direction === "darija-nl") {
+      words.forEach(word => {{
+        if (direction === "darija-nl") {{
           result.push(dictionary[word] || `[${word}]`);
-        } else {
+        }} else {{
           const entry = Object.entries(dictionary).find(([d, n]) => n.toLowerCase() === word);
           result.push(entry ? entry[0] : `[${word}]`);
-        }
-      });
-
-      
+        }}
+      }});
       const output = result.join(" ");
-      const allUnknown = result.every(word => word.startsWith("[") && word.endsWith("]"));
-      
+      const allUnknown = result.every(w => w.startsWith("[") && w.endsWith("]"));
       document.getElementById("feedbackSection").style.display = allUnknown ? "block" : "none";
       document.getElementById("outputText").innerText = allUnknown
         ? "Dit woord of deze zin staat (nog) niet in de woordenlijst."
         : output;
-    
-    }
+    }}
+    function reportMissingWord() {{
+      const woord = document.getElementById("inputText").value.trim();
+      fetch("{meld_url}", {{
+        method: "POST",
+        headers: {{
+          "Content-Type": "application/x-www-form-urlencoded"
+        }},
+        body: "woord=" + encodeURIComponent(woord)
+      }}).then(() => {{
+        alert("✅ Bedankt voor je melding! We voegen het woord binnenkort toe.");
+      }}).catch(() => {{
+        alert("⚠️ Er ging iets mis bij het verzenden van je melding.");
+      }});
+    }}
   </script>
 </body>
 </html>
